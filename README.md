@@ -6,10 +6,8 @@ green.svg) (LICENSE)
 Python
 FastAPINo cloud required. Sub-second control. Built for the community.bash
 
-docker compose up --build
-# → http://localhost:8000/v2g
-
-What it isfingal-fleet is a minimal, fully open-source controller for one or many Tesla Powerwalls (and future bidirectional vehicles).
+What it is?
+A minimal, fully open-source controller for one or many Tesla Powerwalls (and future bidirectional vehicles).
 It speaks directly to the local Gateway API, giving you the fastest possible response time and complete independence from Tesla’s cloud.Originally started as a idea has grown into a clean, observable, and extensible platform that anyone can run, study, or improve.Core principlesLocal-first – works during internet outages  
 Deterministic metrics – byte-exact change detection (zero metric churn)  
 Native OpenTelemetry + Prometheus – drop-in Grafana/Prometheus ready  
