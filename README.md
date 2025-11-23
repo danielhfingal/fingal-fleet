@@ -58,7 +58,7 @@ docker compose up --build
 /metrics → Prometheus endpoint  
 /healthz → Health check
 
-Contributing
+Contributing:
 Every line in this project has a reason to exist.
 Its in the hands of the people now...
 
