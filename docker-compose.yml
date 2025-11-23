@@ -1,0 +1,22 @@
+
+---
+
+### 2. `docker-compose.yml`
+
+```yaml
+version: "3.9"
+services:
+  fingal-fleet:
+    build: .
+    container_name: fingal-fleet
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./certs:/certs:ro
+    env_file: .env
+    command: >
+      uvicorn fingal_fleet.main:app --host 0.0.0.0 --port 8000
+      --ssl-keyfile /certs/server.key
+      --ssl-certfile /certs/server.crt
+      --ssl-ca-certs /certs/client.crt
+      --ssl-client-cert-required

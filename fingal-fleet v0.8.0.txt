@@ -1,0 +1,71 @@
+# fingal_fleet/main.py — v0.8.0 — The grid is ours
+from __future__ import annotations
+import asyncio
+import logging
+import yaml
+from datetime import datetime, UTC
+from pathlib import Path
+
+from fastapi import FastAPI, Request, status
+from fastapi.responses import HTMLResponse
+from opentelemetry import metrics
+from opentelemetry.exporter.prometheus import PrometheusMetricsExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.resources import Resource
+
+from .database import SessionLocal, Site
+from .site import FleetPowerwall
+from .dispatch import Cmd
+from .hardened_security import Nuclear
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+log = logging.getLogger("fingal-fleet")
+
+app = FastAPI(
+    title="fingal-fleet v0.8.0 — The Money Printer",
+    version="0.8.0",
+    description="Local-first Tesla Powerwall VPP • DS3 FFR • MIBEL Arbitrage",
+)
+
+# OpenTelemetry + Prometheus
+resource = Resource.create({"service.name": "fingal-fleet", "version": "0.8.0"})
+metrics.set_meter_provider(MeterProvider(resource=resource))
+meter = metrics.get_meter("fingal-fleet")
+exporter = PrometheusMetricsExporter()
+metrics.get_meter_provider().start_pipeline(exporter.reader)
+app.mount("/metrics", exporter.create_app())
+
+# Metrics
+FLEET_SITE_UP = meter.create_up_down_counter("fleet_site_up", description="1 = site alive")
+FLEET_COMMAND_TOTAL = meter.create_counter("fleet_command_total", description="Commands issued")
+
+# Global state
+sites: dict[str, FleetPowerwall] = {}
+command_queue: asyncio.Queue[tuple[str, Cmd]] = asyncio.Queue()
+
+# Load sites.yaml
+def load_sites() -> None:
+    path = Path("sites.yaml")
+    if not path.exists():
+        log.error("sites.yaml missing — the fleet cannot awaken")
+        raise FileNotFoundError("sites.yaml")
+    config = yaml.safe_load(path.read_text())
+    for site_cfg in config.get("sites", []):
+        sid = site_cfg["id"]
+        sites[sid] = FleetPowerwall(sid, site_cfg)
+        db = SessionLocal()
+        db.merge(Site(id=sid, config=site_cfg, labels=site_cfg.get("labels", {}), is_active=True))
+        db.commit()
+        db.close()
+    log.info(f"Fleet loaded — {len(sites)} Powerwall(s) armed")
+
+load_sites()
+
+# Command worker — executes dispatch
+async def command_worker() -> None:
+    while True:
+        site_id, cmd = await command_queue.get()
+        targets = [sites[site_id]] if site_id != "all" else sites.values()
+        for target in targets:
+            await target.dispatcher.run(cmd)
+           

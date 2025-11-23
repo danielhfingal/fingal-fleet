@@ -1,0 +1,19 @@
+fingal-fleet/
+├── README.md                      ← Eye-catching masterpiece
+├── docker-compose.yml
+├── Dockerfile
+├── .env.example
+├── requirements.txt
+├── sites.yaml                     ← Your fleet config
+├── data/                          ← auto-created (SQLite DB)
+├── certs/                         ← generate with commands below
+└── fingal_fleet/
+    ├── __init__.py
+    ├── main.py
+    ├── database.py
+    ├── site.py
+    ├── dispatch.py
+    ├── hardened_security.py
+    └── v2g_dashboard.py
+└── tests/
+    └── test_fingal_fleet.py

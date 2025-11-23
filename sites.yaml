@@ -1,0 +1,7 @@
+sites:
+  - id: home-dublin
+    host: 192.168.1.42
+    password: your_powerwall_password
+    labels:
+      tariff: agile
+      program: ds3_ffr
