@@ -1,7 +1,8 @@
 # fingal-fleet
 Local-first Tesla Powerwall fleet controller, sub-second dispatch, DS3 FFR ready 
 
-fingal-fleet v0.8.0Local-first, open-source Tesla Powerwall fleet controller![License: MIT](https://img.shields.io/badge/License-MIT-green.svg) (LICENSE)
+fingal-fleet v0.8.0Local-first, open-source Tesla Powerwall fleet controller![License: MIT]
+green.svg) (LICENSE)
 Python
 FastAPINo cloud required. Sub-second control. Built for the community.bash
 
